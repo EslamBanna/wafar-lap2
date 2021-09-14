@@ -9,17 +9,9 @@ trait GeneralTrait
     {
         $photo ->store('/',$folder);
         $filename = $photo->hashName();
-        // $path = 'images/'.$folder.'/'.$filename;
         return $filename;
     }
 
-   public function saveImage1($photo,$path){
-        $fil_extiention = $photo -> getClientOriginalExtension();
-        $file_name = time().'.'.$fil_extiention;
-        $path_name = $path;
-        $photo -> move($path_name,$file_name);
-        return  $file_name;
-    }
     public function returnError($errNum, $msg)
     {
         return response()->json([

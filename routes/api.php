@@ -38,6 +38,8 @@ Route::group(['prefix' => 'user'], function () {
 
     ############################# orders ################
     Route::post('/get-user-orders', [UserController::class, 'getUserOrders']);
+    Route::post('/get-order', [UserController::class, 'getOrder']);
+    Route::post('/update-order-info', [UserController::class, 'updateOrderInfo']);
 
 
 });

@@ -10,9 +10,11 @@ use App\Models\User\Resturant;
 use App\Models\User\Service;
 use App\Models\User\User;
 use App\Models\User\Order;
+use App\Models\Delivery\Delivery;
 use App\Traits\GeneralTrait;
 use Illuminate\Http\Request;
 use Validator;
+use DB;
 
 class UserController extends Controller
 {
@@ -260,8 +262,62 @@ class UserController extends Controller
             ->with('delivery')
             ->with('service')
             ->where('user_id',$request->user_id)->paginate($request->paginateCount);
+            if( $orders->count() == 0){
+                return $this->returnError('202', 'fail');
+            }
             return $this->returnData('data', $orders, 'success');
         }catch(\Exception $e){
+            return $this->returnError('201', 'fail');
+        }
+    }
+
+    public function getOrder(Request $request){
+        try{
+            $user = User::where('id',$request->user_id)->first();
+            if(! $user){
+            return $this->returnError('202', 'fail');
+            }
+            $order = Order::with('order_lists')
+            ->with('delivery')
+            ->with('service')
+            ->where('user_id',$request->user_id)
+            ->where('id',$request->order_id)
+            ->paginate($request->paginateCount);
+            if( $order->count() == 0){
+                return $this->returnError('202', 'fail');
+            }
+            return $this->returnData('data', $order, 'success');
+        }catch(\Exception $e){
+            return $this->returnError('201', 'fail');
+        }
+    }
+
+    public function updateOrderInfo(Request $request){
+        try{
+            DB::beginTransaction();
+            if(!$request->has('order_id')){
+                return $this->returnError('202', 'fail');
+            }
+            // return $request->order_id;
+            $order = Order::find( $request->order_id);
+            if(! $order){
+            return $this->returnError('202', 'fail');
+            }
+            if($request->has('status')){
+            $order->update([
+                "status" => $request->status
+            ]);
+            }
+            if($request->has('latitude') && $request->has('longitude')){
+                $delivery = Delivery::where('id', $order->delivery_id)->update([
+                    'latitude'=> $request->latitude,
+                    'longitude'=> $request->longitude
+                ]);
+            }
+            DB::commit();
+            return $this->returnSuccessMessage('success');
+        }catch(\Exception $e){
+            DB::rollback();
             return $this->returnError('201', $e->getMessage());
         }
     }

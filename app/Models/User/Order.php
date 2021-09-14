@@ -28,7 +28,14 @@ class Order extends Model
         return $this->belongsTo('App\Models\User\Service','services_id','id');
     }
 
-
-
+    public function setStatusAttribute($value){
+        if($value == "received" || $value == "Received"){
+            $this->attributes['status'] = 1;
+        }else if($value == "on the way" || $value == "On the way" || $value == "On The Way"){
+            $this->attributes['status'] = 2;
+        }else if($value == "delivered" || $value == "Delivered"){
+            $this->attributes['status'] = 3;            
+        }
+    }
     
 }
